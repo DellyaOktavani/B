@@ -155,10 +155,9 @@ export const prepareWAMessageMedia = async(
 	}
 
 	const requiresDurationComputation = mediaType === 'audio' && typeof uploadData.seconds === 'undefined'
-	const requiresWaveformProcessing = mediaType === 'audio' && uploadData.ptt === 'true' || true
-	const requiresAudioBackground = options.backgroundColor && mediaType === 'audio' && uploadData.ptt === 'true' || true
-	const requiresThumbnailComputation = (mediaType === 'image' || mediaType === 'video') &&
-										(typeof uploadData['jpegThumbnail'] === 'undefined')
+	const requiresWaveformProcessing = mediaType === 'audio' && uploadData.ptt === true
+	const requiresAudioBackground = options.backgroundColor && mediaType === 'audio' && uploadData.ptt === true
+	const requiresThumbnailComputation = (mediaType === 'image' || mediaType === 'video') && (typeof uploadData['jpegThumbnail'] === 'undefined')
 	const requiresOriginalForSomeProcessing = requiresDurationComputation || requiresThumbnailComputation
 	
 	const {
@@ -212,7 +211,7 @@ export const prepareWAMessageMedia = async(
 				}
 				
 				if(requiresWaveformProcessing) {
-					uploadData.waveform = await getAudioWaveform(bodyPath!, logger) || options.waveform
+					uploadData.waveform = options.waveform || await getAudioWaveform(bodyPath!, logger) 
 					logger?.debug('processed waveform')
 				}
 				
@@ -223,7 +222,7 @@ export const prepareWAMessageMedia = async(
 				});
 				
 				if(requiresAudioBackground) {
-					uploadData.backgroundArgb = await assertColor(options.backgroundColor)
+					uploadData.backgroundArgb = options.backgroundArgb || await assertColor(options.backgroundColor) 
 					logger?.debug('computed backgroundColor audio status')
 				}
 			} catch(error) {
