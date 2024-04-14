@@ -318,8 +318,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 			break
 		case 'created_membership_requests':
-		    const request_method = child.attrs!.request_method
-		    if(request_method === 'non_admin_add') {
+		    const requestMethod = child.attrs!.request_method
+		    if(requestMethod === 'non_admin_add') {
 			    const participants = getBinaryNodeChildren(child, 'requested_user').map(p => p.attrs.jid)
 			    msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST
 			    msg.messageStubParameters = participants
@@ -328,9 +328,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			    msg.messageStubParameters = [ participant ]
 		    }
 
-		break
+			break
 		default:
-		    console.log("BAILEYS-DEBUG:", JSON.stringify({ ...child, content: Buffer.isBuffer(child.content) ? child.content.toString() : child.content, participant }, null, 2))
+			console.log('BAILEYS-DEBUG:', JSON.stringify({ ...child, content: Buffer.isBuffer(child.content) ? child.content.toString() : child.content, participant }, null, 2))
 		}
 	}
 

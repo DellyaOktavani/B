@@ -82,7 +82,7 @@ type Listable = {
 
     /** Text of the button on the list (required) */
     buttonText?: string
-    
+
     /** ListType of a List Message only */
     listType?: proto.Message.ListMessage.ListType
 }
