@@ -322,21 +322,22 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 			break
 		case 'created_membership_requests':
-		    const requestMethod = child.attrs!.request_method
-		    if(requestMethod === 'non_admin_add') {
-			    const participants = getBinaryNodeChildren(child, 'requested_user').map(p => p.attrs.jid)
-			    msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST
-			    msg.messageStubParameters = participants
-		    } else {
-			    msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST
-			    msg.messageStubParameters = [ participant ]
-		    }
+			const requestMethod = child.attrs.request_method
+			if(requestMethod === 'non_admin_add') {
+				const participants = getBinaryNodeChildren(child, 'requested_user').map(p => p.attrs.jid)
+				msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST
+				msg.messageStubParameters = participants
+			} else {
+				msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST
+				msg.messageStubParameters = [ participant ]
+			}
 
 			break
 		default:
 			console.log('BAILEYS-DEBUG:', JSON.stringify({ ...child, content: Buffer.isBuffer(child.content) ? child.content.toString() : child.content, participant }, null, 2))
 		}
 	}
+
 
 	const processNotification = async(node: BinaryNode) => {
 		const result: Partial<proto.IWebMessageInfo> = { }
@@ -696,6 +697,13 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	}
 
 	const handleMessage = async(node: BinaryNode) => {
+		if(getBinaryNodeChild(node, 'unavailable') && !getBinaryNodeChild(node, 'enc')) {
+			// fix mising message from node
+			logger.debug(node, 'missing body; sending ack then ignoring.')
+			await sendMessageAck(node)
+			return
+		}
+
 		const { fullMessage: msg, category, author, decrypt } = decryptMessageNode(
 			node,
 			authState.creds.me!.id,
